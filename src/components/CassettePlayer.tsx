@@ -4,26 +4,39 @@ import { useNavigate } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 import MixtapeService from '../services/mixtapeService';
 import { Toaster, toast } from 'sonner';
+/// <reference types="youtube" />
 
 interface Track {
     id: number;
     url: string;
+    videoID: string;
+}
+
+declare global {
+    interface Window {
+        onYouTubeIframeAPIReady: () => void;
+        YT: typeof YT;
+    }
 }
 
 const CassettePlayer: React.FC = () => {
     const { id } = useParams();
     const [recipientName, setRecipientName] = useState<string>('');
-    const [urls, setUrls] = useState<Track[]>([{ id: 1, url: '' }]);
-    const [tracks, setTracks] = useState<Track[]>([{ id: 1, url: '' }]);
+    const [urls, setUrls] = useState<Track[]>([
+        { id: 1, url: '', videoID: '' },
+    ]);
+    const [tracks, setTracks] = useState<Track[]>([
+        { id: 1, url: '', videoID: '' },
+    ]);
     const [isPlaying, setIsPlaying] = useState(false);
     const [hasTape, setHasTape] = useState(false);
     const [currentTrack, setCurrentTrack] = useState(1);
     const [isCassetteInserted, setIsCassetteInserted] = useState(false);
     const playerRef = useRef(null);
-    const youtubePlayer = useRef(null);
-    const insertAudioRef = useRef(null);
-    const ejectAudioRef = useRef(null);
-    const buttonAudioRef = useRef(null);
+    const youtubePlayer = useRef<YT.Player | null>(null);
+    const insertAudioRef = useRef<HTMLAudioElement | null>(null);
+    const ejectAudioRef = useRef<HTMLAudioElement | null>(null);
+    const buttonAudioRef = useRef<HTMLAudioElement | null>(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -40,7 +53,12 @@ const CassettePlayer: React.FC = () => {
                 }
 
                 setRecipientName(mixtape?.recipientName || 'FOR YOU');
-                setUrls(mixtape?.tracks || []);
+                setUrls(
+                    mixtape?.tracks.map((track) => ({
+                        ...track,
+                        videoID: '',
+                    })) || []
+                );
             } catch (e) {
                 console.error('Error fetching mixtape', e);
             }
@@ -80,6 +98,7 @@ const CassettePlayer: React.FC = () => {
                         ? {
                               id,
                               url: `https://www.youtube.com/watch?v=${videoId}`,
+                              videoID: videoId,
                           }
                         : null;
                 })
@@ -96,28 +115,34 @@ const CassettePlayer: React.FC = () => {
         const firstScriptTag = document.getElementsByTagName('script')[0];
         firstScriptTag.parentNode!.insertBefore(tag, firstScriptTag);
 
-        window.onYouTubeIframeAPIReady = () => {
-            youtubePlayer.current = new window.YT.Player('youtube-player', {
-                height: '0',
-                width: '0',
-                videoId: tracks[currentTrack - 1] || '', // Prevent undefined errors
-                playerVars: {
-                    playsinline: 1,
-                    controls: 0,
-                    disablekb: 1,
-                    fs: 0,
-                },
-                events: {
-                    onStateChange: onPlayerStateChange,
-                    onReady: (event) => {
-                        youtubePlayer.current = event.target; // Store the player instance
-                        if (isPlaying) {
-                            event.target.playVideo(); // Play if already set to playing
-                        }
+        const playerElement = document.getElementById(
+            'youtube-player'
+        ) as HTMLElement | null;
+
+        if (playerElement) {
+            window.onYouTubeIframeAPIReady = () => {
+                youtubePlayer.current = new window.YT.Player('youtube-player', {
+                    height: '0',
+                    width: '0',
+                    videoId: tracks[currentTrack - 1]?.videoID || '',
+                    playerVars: {
+                        playsinline: 1,
+                        controls: 0,
+                        disablekb: 1,
+                        fs: 0,
                     },
-                },
-            });
-        };
+                    events: {
+                        onStateChange: onPlayerStateChange,
+                        onReady: (event) => {
+                            youtubePlayer.current = event.target;
+                            if (isPlaying) {
+                                event.target.playVideo();
+                            }
+                        },
+                    },
+                });
+            };
+        }
 
         return () => {
             if (
@@ -125,12 +150,12 @@ const CassettePlayer: React.FC = () => {
                 typeof youtubePlayer.current.destroy === 'function'
             ) {
                 youtubePlayer.current.destroy();
-                youtubePlayer.current = null; // Prevent stale references
+                youtubePlayer.current = null;
             }
         };
     }, []);
 
-    const onPlayerStateChange = (event) => {
+    const onPlayerStateChange = (event: YT.OnStateChangeEvent) => {
         if (event.data === window.YT.PlayerState.ENDED) {
             if (currentTrack < tracks.length) {
                 setCurrentTrack(currentTrack + 1);
@@ -147,7 +172,9 @@ const CassettePlayer: React.FC = () => {
         )
             return;
 
-        youtubePlayer.current.loadVideoById(tracks[currentTrack - 1] || '');
+        youtubePlayer.current.loadVideoById(
+            tracks[currentTrack - 1]?.videoID || ''
+        );
         if (isPlaying) {
             youtubePlayer.current.playVideo();
         } else {

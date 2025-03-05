@@ -1,10 +1,9 @@
 import React from 'react';
-import { useParams, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import MixtapeEditor from './components/MixtapeEditor';
 
 const EditMixtape: React.FC = () => {
     const location = useLocation();
-    const { id } = useParams<{ id: string }>();
     const recipientName = location.state?.recipientName;
     const tracks = location.state?.tracks;
 

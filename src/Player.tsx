@@ -1,10 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import CassettePlayer from './components/CassettePlayer';
 
 function Player() {
-    const shareUrl = window.location.href;
+    // const shareUrl = window.location.href;
 
     const generateCassettePreview = () => {
         const canvas = document.createElement('canvas');

@@ -1,4 +1,3 @@
-import React from 'react';
 import MixtapeCreator from './components/MixtapeCreator';
 
 function CreateMixtape() {

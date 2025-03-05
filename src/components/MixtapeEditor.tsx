@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { CassetteTapeRemix } from './CassetteTape';
 import { useNavigate } from 'react-router-dom';
 import { DndProvider } from 'react-dnd';
@@ -30,7 +30,7 @@ const MixtapeEditor: React.FC<MixtapeEditorProps> = ({ currentMixtape }) => {
     const [mixtape, setMixtape] = useState<Mixtape>(currentMixtape);
     const [isEditing, setIsEditing] = useState(false);
     const navigate = useNavigate();
-    const remixAudioRef = useRef(null);
+    const remixAudioRef = useRef<HTMLAudioElement | null>(null);
 
     const moveRow = useCallback((dragIndex: number, hoverIndex: number) => {
         setIsEditing(true);
@@ -104,10 +104,7 @@ const MixtapeEditor: React.FC<MixtapeEditorProps> = ({ currentMixtape }) => {
             if (!id) return;
 
             const updatedMixtape = { ...mixtape, recipientName };
-            const updated = await MixtapeService.updateMixtape(
-                id,
-                updatedMixtape
-            );
+            await MixtapeService.updateMixtape(id, updatedMixtape);
 
             navigate(`/playback/${id}`);
         } catch (error) {
