@@ -64,9 +64,7 @@ class MixtapeService {
                 console.warn(
                     `Mixtape with ID ${id} not found. Fetching default mixtape.`
                 );
-                return await MixtapeService.getMixtapeById(
-                    '4AUBQV3QElSkgmtedyrH'
-                );
+                return await MixtapeService.getMixtapeById('awesome-mix');
             }
         } catch (error) {
             console.error('Error fetching mixtape:', error);

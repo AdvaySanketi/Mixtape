@@ -485,7 +485,7 @@ const CassettePlayer: React.FC = () => {
                             onClick={() =>
                                 window.open(
                                     `https://www.youtube.com/watch?v=${
-                                        tracks[currentTrack - 1]
+                                        tracks[currentTrack - 1]?.videoID
                                     }`,
                                     '_blank'
                                 )
