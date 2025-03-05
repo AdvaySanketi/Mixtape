@@ -30,6 +30,7 @@ const CassettePlayer: React.FC = () => {
     ]);
     const [isPlaying, setIsPlaying] = useState(false);
     const [hasTape, setHasTape] = useState(false);
+    const [awesomeMix, setAwesomeMix] = useState(false);
     const [currentTrack, setCurrentTrack] = useState(1);
     const [isCassetteInserted, setIsCassetteInserted] = useState(false);
     const playerRef = useRef(null);
@@ -50,6 +51,7 @@ const CassettePlayer: React.FC = () => {
                     toast(
                         'The mixtape you sought is missing, so here’s a cassette of our own creation — just for you!'
                     );
+                    setAwesomeMix(true);
                 }
 
                 setRecipientName(mixtape?.recipientName || 'FOR YOU');
@@ -459,7 +461,7 @@ const CassettePlayer: React.FC = () => {
                                     state: { recipientName, tracks },
                                 })
                             }
-                            disabled={!isCassetteInserted}
+                            disabled={!isCassetteInserted || awesomeMix}
                         >
                             <svg
                                 xmlns='http://www.w3.org/2000/svg'

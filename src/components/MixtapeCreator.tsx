@@ -28,6 +28,9 @@ const MixtapeCreator: React.FC = () => {
     const handleCreateMixtape = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
+            if (tracks.length === 1 && tracks[0].url === '') {
+                return;
+            }
             const createdMixtape = await MixtapeService.createMixtape({
                 recipientName: recipientName || 'FOR YOU',
                 tracks: tracks,
