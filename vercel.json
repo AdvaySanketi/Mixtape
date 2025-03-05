@@ -1,0 +1,8 @@
+{
+    "build": {
+        "env": {
+            "CI": "true",
+            "NEXT_TELEMETRY_DISABLED": "1"
+        }
+    }
+}
